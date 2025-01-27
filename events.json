@@ -130,7 +130,8 @@
       "id": 22,
       "title": "Virtual Reality Gaming Tournament",
       "start": "2025-01-15T14:00:00Z",
-      "end": "2025-01-17T22:00:00Z"
+      "end": "2025-01-17T22:00:00Z",
+      "allDay": "true"
     },
     {
       "id": 23,
