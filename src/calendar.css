@@ -1,0 +1,13 @@
+.fc-event {
+  cursor: pointer;
+}
+
+.fc-event-time {
+  color: #066e0d;
+  text-transform: uppercase;
+}
+
+.fc-event:hover .fc-event-time {
+  color: #ffffff;
+  background-color: #066e0d;
+}
