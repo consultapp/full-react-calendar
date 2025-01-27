@@ -11,3 +11,13 @@
   color: #ffffff;
   background-color: #066e0d;
 }
+
+table tr td:nth-child(6) .fc-daygrid-day-frame,
+table tr td:nth-child(7) .fc-daygrid-day-frame {
+  background-color: rgba(169, 203, 255, 0.142);
+}
+
+table tr td:nth-child(6) .fc-daygrid-day-frame .fc-bg-event,
+table tr td:nth-child(7) .fc-daygrid-day-frame .fc-bg-event {
+  opacity: 1;
+}

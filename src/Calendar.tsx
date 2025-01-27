@@ -6,18 +6,25 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'
 import { EventClickArg } from '@fullcalendar/core/index.js'
 import './calendar.css'
+import { holydays } from './holydays'
 
 let calendarApi: ReturnType<FullCalendar['getApi']> | undefined
 const cache = new Map<string, CEvent[]>()
 
-type CEvent = {
-  title: string
-  date: string
+export type CEvent = {
+  title?: string
+  date?: string
+  start?: string
+  end?: string
+  display?: string
+  allDay?: boolean
+  color?: string
 }
 
 export default function Calendar() {
   const calendarRef = useRef<FullCalendar>(null)
   const [events, setEvents] = useState<CEvent[]>()
+  const [showWeekends, setShowWeekends] = useState(true)
 
   console.log('events', events)
 
@@ -79,21 +86,24 @@ export default function Calendar() {
           alert('clicked the custom button!')
         },
       },
+      weekends: {
+        text: `${showWeekends ? 'Скрыть' : 'Показать'} выходные`,
+        click: function () {
+          setShowWeekends((prev) => !prev)
+        },
+      },
     }),
-    []
+    [showWeekends]
   )
   const headerToolbar = useMemo(
     () => ({
-      start: 'prev today next',
+      start: 'prev today next weekends',
       center: 'title',
       end: 'multiMonthYear dayGridMonth dayGridWeek dayGridDay',
     }),
     []
   )
-  const footerToolbar = useMemo(
-    () => ({ start: 'prev today next', end: 'myCustomButton' }),
-    []
-  )
+  // const footerToolbar = useMemo(() => ({ start: 'prev today next', end: 'myCustomButton' }), [])
 
   useEffect(() => {
     calendarApi = calendarRef?.current?.getApi()
@@ -105,14 +115,24 @@ export default function Calendar() {
       plugins={[multiMonthPlugin, dayGridPlugin, interactionPlugin]}
       initialView={'multiMonthYear'}
       height="95vh"
-      events={events}
+      events={holydays.concat(events || [])}
+      // events={events}
       locale={ruLocale}
       customButtons={customButtons}
       headerToolbar={headerToolbar}
-      footerToolbar={footerToolbar}
+      // footerToolbar={footerToolbar}
       dateClick={dateClickHandler}
       datesSet={handleDatesSet}
       eventClick={handleEventClick}
+      weekends={showWeekends}
+      // events={function (info, successCallback, failureCallback) {
+      //   // ...
+      //   console.log(info)
+      //   console.log(successCallback)
+      //   console.log(failureCallback)
+
+      //   successCallback(holydays.concat(events || []))
+      // }}
     />
   )
 }
