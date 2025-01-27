@@ -4,8 +4,11 @@ import multiMonthPlugin from '@fullcalendar/multimonth'
 import ruLocale from '@fullcalendar/core/locales/ru'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import interactionPlugin, { DateClickArg } from '@fullcalendar/interaction'
+import { EventClickArg } from '@fullcalendar/core/index.js'
+import './calendar.css'
 
 let calendarApi: ReturnType<FullCalendar['getApi']> | undefined
+const cache = new Map<string, CEvent[]>()
 
 type CEvent = {
   title: string
@@ -18,22 +21,36 @@ export default function Calendar() {
 
   console.log('events', events)
 
-  const fetchEvents = async (start: string, end: string) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/events?start_gte=${start}&start_lte=${end}`
-      )
-      setEvents(await response.json())
-    } catch (error) {
-      console.error('Error fetching events:', error)
+  const fetchEvents = useCallback(async (start: string, end: string) => {
+    if (cache.has(start + end)) {
+      setEvents(cache.get(start + end))
+    } else {
+      try {
+        const response = await fetch(
+          `http://localhost:3000/events?start_gte=${start}&start_lte=${end}`
+        )
+        const e = await response.json()
+        cache.set(start + end, e)
+        setEvents(e)
+      } catch (error) {
+        console.error('Error fetching events:', error)
+      }
     }
-  }
+  }, [])
 
-  const handleDatesSet = (data: { start: Date; end: Date }) => {
-    const { start, end } = data
-    console.log('handleDatesChange:', start, end)
-    fetchEvents(start.toISOString(), end.toISOString())
-  }
+  const handleDatesSet = useCallback(
+    (data: { start: Date; end: Date }) => {
+      const { start, end } = data
+      console.log('handleDatesChange:', start, end)
+      fetchEvents(start.toISOString(), end.toISOString())
+    },
+    [fetchEvents]
+  )
+
+  const handleEventClick = useCallback((info: EventClickArg) => {
+    console.log('Event ID:', info.event.id)
+    alert('Event ID: ' + info.event.id)
+  }, [])
 
   const dateClickHandler = useCallback((info: DateClickArg) => {
     if (calendarApi) {
@@ -95,6 +112,7 @@ export default function Calendar() {
       footerToolbar={footerToolbar}
       dateClick={dateClickHandler}
       datesSet={handleDatesSet}
+      eventClick={handleEventClick}
     />
   )
 }
